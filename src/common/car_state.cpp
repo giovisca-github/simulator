@@ -5,9 +5,8 @@ CarState::CarState(const Vector<IDX::SIZE>& x_) : x{x_} {}
 
 CarState::~CarState() {}
 
-void CarState::setPosition(const Scalar& pos_x, const Scalar& pos_y,
-                           const Scalar& pos_z) {
-  x[CS::POSX] = pos_x;
-  x[CS::POSY] = pos_y;
-  x[CS::POSZ] = pos_z;
+void CarState::setPosition(const std::vector<Scalar>& position) {
+  x[CS::POSX] = position[0];
+  x[CS::POSY] = position[1];
+  x[CS::POSZ] = position[2];
 };

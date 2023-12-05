@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.8)
 project(my_cpp_pkg)
+# set(CMAKE_CXX_STANDARD 20)
 
 # if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 #   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -10,9 +11,19 @@ find_package(Eigen3 REQUIRED)
 
 include_directories(include)
 include_directories(${EIGEN_INCLUDE_DIR})
-file(GLOB_RECURSE SOURCES
-src/bridge/*.cpp
-src/common/*.cpp)
+# file(GLOB_RECURSE SOURCES
+# src/bridge/*.cpp
+# src/common/*.cpp)
+
+set(SOURCES
+    src/bridge/bridge.cpp
+    src/bridge/server.cpp
+    src/common/car.cpp
+    src/common/car_state.cpp
+    src/common/math_stuff.cpp
+)
+
+
 
 add_library(${PROJECT_NAME} ${SOURCES})
 target_link_libraries(${PROJECT_NAME} PRIVATE

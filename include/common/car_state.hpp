@@ -19,8 +19,7 @@ struct CarState {
 
   inline bool valid() const { return x.allFinite(); }
 
-  void setPosition(const Scalar& pos_x, const Scalar& pos_y,
-                   const Scalar& pos_z);
+  void setPosition(const std::vector<Scalar>& position);
 
   Vector<IDX::SIZE> x = Vector<IDX::SIZE>::Constant(NAN);  // state vector
 

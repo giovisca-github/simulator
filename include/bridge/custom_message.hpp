@@ -22,17 +22,23 @@ the simulator has to receive:
 
 using json = nlohmann::json;
 
-// unity vehicle
+//  vehicle to send to unity
 struct Vehicle {
-  std::uint64_t ID;
+  std::string ID;
   std::vector<Scalar> position{0.0, 0.0, 0.0};
-  std::vector<Commands> commands;
+  Commands commands;
+  bool physic_engine;  // 1 use PhysX dynamics
+};
+
+// vehicle received from unity
+struct Vehicle_sub {
+  bool collision;
+  std::vector<Scalar> position{NAN};
 };
 
 // initial message
 struct SettingMessage {
   std::vector<Vehicle> vehicles;
-  std::vector<bool> unity_dynamics;  // 1 use PhysX dynamics
 };
 
 // message published to unity
@@ -42,7 +48,7 @@ struct PubMessage {
 
 // message received from unity
 struct SubMessage {
-  std::vector<Vehicle> vehicles;
+  std::vector<Vehicle_sub> vehicles;
 };
 
 // --- JSON Serialization ---------------------------- //
@@ -57,19 +63,31 @@ inline void from_json(const json& j, Commands& c) {
 }
 
 inline void to_json(json& j, const Vehicle& v) {
-  j = json{{"ID", v.ID}, {"position", v.position}, {"commands", v.commands}};
+  j = json{{"ID", v.ID},
+           {"position", v.position},
+           {"commands", v.commands},
+           {"physic_engine", v.physic_engine}};
 };
 
 inline void from_json(const json& j, Vehicle& v) {
-  v.ID = j.at("ID").get<uint64_t>();
+  v.ID = j.at("ID").get<std::string>();
   v.position = j.at("position").get<std::vector<Scalar>>();
-  v.commands = j.at("commands").get<std::vector<Commands>>();
+  v.commands = j.at("commands").get<Commands>();
+  v.physic_engine = j.at("physic_engine").get<bool>();
 }
 
 inline void to_json(json& j, const PubMessage& p) {
   j = json{{"vehicles", p.vehicles}};
 };
+inline void from_json(const json& j, PubMessage& p) {
+  p.vehicles = j.at("vehicles").get<std::vector<Vehicle>>();
+}
 
 inline void from_json(const json& j, SubMessage& s) {
-  s.vehicles = j.at("vehicles").get<std::vector<Vehicle>>();
+  s.vehicles = j.at("vehicles").get<std::vector<Vehicle_sub>>();
+}
+
+inline void from_json(const json& j, Vehicle_sub& v) {
+  v.collision = j.at("collision").get<bool>();
+  v.position = j.at("position").get<std::vector<Scalar>>();
 }

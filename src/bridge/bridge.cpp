@@ -1,5 +1,6 @@
 #include "bridge/bridge.hpp"
 
+#include "common/math_stuff.hpp"
 // constructor
 UnityBridge::UnityBridge()
     : client_address_("tcp://*"), pub_port_("10253"), sub_port_("10254") {
@@ -27,7 +28,7 @@ bool UnityBridge::connectUnity() {  // test communication in both direction so
   while (!unity_ready) {
     std::cout << "---";
     std::cout.flush();
-    sendFirstMessage();
+    sendSettings();
     unity_ready = receiveFirstMessage();
     usleep(0.5e6);
   }
@@ -35,11 +36,11 @@ bool UnityBridge::connectUnity() {  // test communication in both direction so
   return unity_ready;
 };
 
-bool UnityBridge::sendFirstMessage() {
+bool UnityBridge::sendSettings() {
   zmqpp::message message;
 
-  json hanshake_json = {{"ready", true}};
-  message << "Connect" << hanshake_json.dump();
+  json json_msg = pub_msg_;
+  message << "InitialSettings" << json_msg.dump();
 
   pub_.send(message, true);
   return true;
@@ -52,33 +53,66 @@ bool UnityBridge::receiveFirstMessage() {
 
   if (sub_.receive(msg, true)) {
     std::string metadata_string = msg.get(0);
-    if (json::parse(metadata_string).size() > 1) {
-      return false;  // hack
-    }
+    // if (json::parse(metadata_string).size() > 1) {
+    //   return false;  // hack
+    // }
     done = json::parse(metadata_string).at("ready").get<bool>();
   }
   return done;
 };
 
-bool UnityBridge::addCar(std::shared_ptr<Car> vehicle) {
-  unity_car_ = vehicle;
+bool UnityBridge::addCar(std::shared_ptr<Car> car) {
+  Vehicle vehicles_t;
+  CarState car_state;
+  if (!car->getState(car_state)) {
+    std::cerr << "Error in adding car, no states set for the car!!\n";
+    return false;
+  }
+  // each vehile is called "car<number>"
 
-  return false;
+  vehicles_t.ID = "car" + std::to_string(pub_msg_.vehicles.size());
+  vehicles_t.position = position2Unity(car_state.p);
+  vehicles_t.physic_engine = car->getPhysicEngine();
+  vehicles_t.commands = car->getCommands();
+  unity_cars_.push_back(car);
+
+  pub_msg_.vehicles.push_back(vehicles_t);
+  return true;
 };
 
-bool UnityBridge::getFromUnity() {
+bool UnityBridge::sendToUnity() {
+  CarState car_state;
+
+  for (size_t idx = 0; idx < pub_msg_.vehicles.size(); idx++) {
+    unity_cars_[idx]->getState(car_state);
+    pub_msg_.vehicles[idx].position = position2Unity(car_state.p);
+    pub_msg_.vehicles[idx].commands = unity_cars_[idx]->getCommands();
+  }
+  zmqpp::message msg;
+  msg << "Update";
+  json json_msg = pub_msg_;
+  msg << json_msg.dump();
+  pub_.send(msg, true);
+  return true;
+};
+
+bool UnityBridge::receiveFromUnity() {
   zmqpp::message msg;
   sub_.receive(msg);
 
-    return true;
-}
+  std::string json_sub_msg = msg.get(0);
 
-bool UnityBridge::send_command(Commands& command) {
-  zmqpp::message msg;
-  json msg_json = command;
-  msg << "Command";
-  msg << msg_json.dump();
+  SubMessage sub_msg = json::parse(json_sub_msg);
 
-  pub_.send(msg, true);
+  CarState car_state;
+  for (size_t idx = 0; idx < pub_msg_.vehicles.size(); idx++) {
+    unity_cars_[idx]->setCollision(sub_msg.vehicles[idx].collision);
+
+    // retrieve state from unity if using unity dynamics
+    if (unity_cars_[idx]->getPhysicEngine()) {
+      car_state.setPosition(sub_msg.vehicles[idx].position);
+      unity_cars_[idx]->setState(car_state);
+    }
+  }
   return true;
 };

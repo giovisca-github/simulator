@@ -7,6 +7,7 @@
 
 #include "bridge/custom_message.hpp"
 #include "common/car.hpp"
+#include "common/math_stuff.hpp"
 #include "external/json.hpp"
 
 using json = nlohmann::json;
@@ -20,10 +21,9 @@ class UnityBridge {
   bool connectUnity();
   bool disconnectUnity();
 
-  // public getter
-
-  bool getFromUnity();  // get all update from unity
-  bool send_command(Commands& command);
+  // used tha values of the shared pointer car to send them to unity
+  bool sendToUnity();
+  bool receiveFromUnity();
   // add shard resource
   bool addCar(std::shared_ptr<Car> vehicle);
 
@@ -35,7 +35,7 @@ class UnityBridge {
   }
 
  private:
-  std::vector<std::shared_ptr<Car>> unity_car_;
+  std::vector<std::shared_ptr<Car>> unity_cars_;
 
   bool initializeConnection(void);
   // ZMQ
@@ -47,9 +47,9 @@ class UnityBridge {
   zmqpp::socket sub_{context_, zmqpp::socket_type::sub};
   // messages types
 
-  SettingMessage setting_msg_;
-  PubMessage pub_msg_;
-  bool sendFirstMessage();
+  // SettingMessage setting_msg_;
+  PubMessage pub_msg_;  // store all the data that has to be then send to unity
+  bool sendSettings();
   bool receiveFirstMessage();
 
   const int connection_time_out{10};
