@@ -26,6 +26,7 @@ using json = nlohmann::json;
 struct Vehicle {
   std::string ID;
   std::vector<Scalar> position{0.0, 0.0, 0.0};
+  std::vector<Scalar> rotation{0.0, 0.0, 0.0, 1.0};
   Commands commands;
   bool is_kinematic;  // 1 use PhysX dynamics
 };
@@ -71,6 +72,7 @@ inline void from_json(const json& j, Commands& c) {
 inline void to_json(json& j, const Vehicle& v) {
   j = json{{"ID", v.ID},
            {"position", v.position},
+           {"rotation", v.rotation},
            {"commands", v.commands},
            {"is_kinematic", v.is_kinematic}};
 };
@@ -78,6 +80,7 @@ inline void to_json(json& j, const Vehicle& v) {
 inline void from_json(const json& j, Vehicle& v) {
   v.ID = j.at("ID").get<std::string>();
   v.position = j.at("position").get<std::vector<Scalar>>();
+  v.rotation = j.at("roation").get<std::vector<Scalar>>();
   v.commands = j.at("commands").get<Commands>();
   v.is_kinematic = j.at("is_kinematic").get<bool>();
 }
@@ -103,7 +106,7 @@ inline void to_json(json& j, const Settings& s) {
 }
 
 inline void to_json(json& j, const SettingMessage& s) {
-  j = json{{"settings", s.setings}, {"PubMessage", s.initialization_msg}};
+  j = json{{"settings", s.setings}, {"subMessage", s.initialization_msg}};
 }
 // inline void from_json(const json& j, SettingMessage& s) {
 //   s.initialization_msg = j.at("PubMessage").get<PubMessage>();

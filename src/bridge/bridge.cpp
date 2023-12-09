@@ -44,6 +44,7 @@ bool UnityBridge::sendSettings() {
   setting_msg.setings = settings_;
 
   json json_msg = setting_msg;
+  // std::cout << json_msg.dump();
   message << "InitialSettings" << json_msg.dump();
   pub_.send(message, true);
   return true;
@@ -75,6 +76,7 @@ bool UnityBridge::addCar(std::shared_ptr<Car> car) {
 
   vehicles_t.ID = "car" + std::to_string(pub_msg_.vehicles.size());
   vehicles_t.position = position2Unity(car_state.p);
+  vehicles_t.rotation = quaternion2Unity(car_state.q());
   vehicles_t.is_kinematic = car->getPhysicEngine();
   vehicles_t.commands = car->getCommands();
   unity_cars_.push_back(car);
@@ -89,6 +91,7 @@ bool UnityBridge::sendToUnity() {
   for (size_t idx = 0; idx < pub_msg_.vehicles.size(); idx++) {
     unity_cars_[idx]->getState(car_state);
     pub_msg_.vehicles[idx].position = position2Unity(car_state.p);
+    pub_msg_.vehicles[idx].rotation = quaternion2Unity(car_state.q());
     pub_msg_.vehicles[idx].commands = unity_cars_[idx]->getCommands();
   }
   zmqpp::message msg;

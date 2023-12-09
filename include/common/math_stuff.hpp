@@ -8,3 +8,5 @@ Math functions for general use:
 
 // -- change reference frame unity to rh ---
 std::vector<Scalar> position2Unity(const Vector<3>& pos_rh);
+
+std::vector<Scalar> quaternion2Unity(const Quaternion& q_rh);

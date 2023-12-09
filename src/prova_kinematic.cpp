@@ -1,11 +1,12 @@
 #include "bridge/bridge.hpp"
+#include "math.h"
 
 int main() {
   // define vehicle in the scene
   std::shared_ptr<Car> f1tenth_kin = std::make_shared<Car>(Car::KIN);
   //  initial states of the car:
   CarState initial_state;
-  initial_state.p.setZero();
+  initial_state.setZero();
 
   f1tenth_kin->setState(initial_state);
 
@@ -21,15 +22,18 @@ int main() {
   bool unity_ready = bridge_ptr_->connectUnity();
 
   // simulation
-  float x{-1};
+  float x{0};
   while (unity_ready) {
     usleep(0.2e6);
-    x += 1;
     // kinematic car
-    std::cout << "insert x y z values = ";
+    std::cout << "insert x y z  values = ";
     for (int i = 0; i < 3; i++) {
       std::cin >> initial_state.p(i);
     }
+    std::cout << " yaw value = ";
+    std::cin >> x;
+
+    initial_state.setYaw(x * M_PI / 180.0);
     std::cout << "\n";
     // initial_state.p << x, 1, 2;
     f1tenth_kin->setState(initial_state);
