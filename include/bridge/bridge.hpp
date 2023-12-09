@@ -21,7 +21,7 @@ class UnityBridge {
   bool connectUnity();
   bool disconnectUnity();
 
-  // used tha values of the shared pointer car to send them to unity
+  // used the values of the shared pointer car to send them to unity
   bool sendToUnity();
   bool receiveFromUnity();
   // add shard resource
@@ -33,6 +33,9 @@ class UnityBridge {
         std::make_shared<UnityBridge>();
     return bridge_ptr;
   }
+
+  // setter
+  void setSettings(const Settings& settings) { settings_ = settings; }
 
  private:
   std::vector<std::shared_ptr<Car>> unity_cars_;
@@ -47,7 +50,7 @@ class UnityBridge {
   zmqpp::socket sub_{context_, zmqpp::socket_type::sub};
   // messages types
 
-  // SettingMessage setting_msg_;
+  Settings settings_;
   PubMessage pub_msg_;  // store all the data that has to be then send to unity
   bool sendSettings();
   bool receiveFirstMessage();

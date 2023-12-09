@@ -17,7 +17,7 @@ bool UnityBridge::initializeConnection() {
   sub_.bind(client_address_ + ":" + sub_port_);
   sub_.subscribe("");
 
-  std::cout << "connection done\n";
+  std::cout << "connection initialed\n";
   return true;
 }
 
@@ -38,10 +38,12 @@ bool UnityBridge::connectUnity() {  // test communication in both direction so
 
 bool UnityBridge::sendSettings() {
   zmqpp::message message;
+  SettingMessage setting_msg;
+  setting_msg.initialization_msg = pub_msg_;
+  setting_msg.setings = settings_;
 
-  json json_msg = pub_msg_;
+  json json_msg = setting_msg;
   message << "InitialSettings" << json_msg.dump();
-
   pub_.send(message, true);
   return true;
 };
@@ -72,7 +74,7 @@ bool UnityBridge::addCar(std::shared_ptr<Car> car) {
 
   vehicles_t.ID = "car" + std::to_string(pub_msg_.vehicles.size());
   vehicles_t.position = position2Unity(car_state.p);
-  vehicles_t.physic_engine = car->getPhysicEngine();
+  vehicles_t.is_kinematic = car->getPhysicEngine();
   vehicles_t.commands = car->getCommands();
   unity_cars_.push_back(car);
 
