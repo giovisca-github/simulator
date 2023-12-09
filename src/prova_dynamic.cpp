@@ -3,7 +3,7 @@
 int main() {
   // define vehicle in the scene
   std::shared_ptr<Car> f1tenth_kin = std::make_shared<Car>(Car::UNITY);
-  std::shared_ptr<Car> f1tenth_dyn = std::make_shared<Car>(Car::EXTENAL);
+  std::shared_ptr<Car> f1tenth_dyn = std::make_shared<Car>(Car::KIN);
 
   //  initial states of the car:
   CarState initial_state;

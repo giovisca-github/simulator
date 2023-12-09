@@ -1,5 +1,5 @@
 #include "common/car.hpp"
-Car::Car(PhysicEngine physic_model) : physic_engine_{physic_model} {}
+Car::Car(MODE physic_model) : physic_engine_{physic_model} {}
 
 // setter
 bool Car::setState(const CarState& state) {

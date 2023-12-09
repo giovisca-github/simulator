@@ -18,16 +18,16 @@ methods:
 class Car {
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-  enum PhysicEngine {
-    EXTENAL,
+  enum MODE {
     UNITY,
+    KIN
 
   };
 
-  Car(PhysicEngine physic_engine);
+  Car(MODE physic_engine);
 
   // setter methods
-  PhysicEngine physic_engine_;
+  MODE physic_engine_;
   bool setState(const CarState& state);
   bool setCommand(const Commands& command);
   inline void setCollision(const bool collision) { collision_ = collision; };

@@ -30,11 +30,12 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
   zmq
   zmqpp)
 
-add_executable(main src/main_prova.cpp)
-target_link_libraries(main ${PROJECT_NAME})
+add_executable(main_dynamic src/prova_dynamic.cpp)
+target_link_libraries(main_dynamic ${PROJECT_NAME})
 
-add_executable(server src/bridge/server.cpp)
-target_link_libraries(server ${PROJECT_NAME})
+add_executable(main_kinematic src/prova_kinematic.cpp)
+target_link_libraries(main_kinematic ${PROJECT_NAME})
+
 
 # # find dependencies
 # find_package(ament_cmake REQUIRED)

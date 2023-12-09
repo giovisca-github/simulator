@@ -1,6 +1,7 @@
 #include "bridge/bridge.hpp"
 
 #include "common/math_stuff.hpp"
+
 // constructor
 UnityBridge::UnityBridge()
     : client_address_("tcp://*"), pub_port_("10253"), sub_port_("10254") {
@@ -94,6 +95,7 @@ bool UnityBridge::sendToUnity() {
   msg << "Update";
   json json_msg = pub_msg_;
   msg << json_msg.dump();
+  std::cout << json_msg.dump(1);
   pub_.send(msg, true);
   return true;
 };
