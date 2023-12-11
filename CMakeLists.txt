@@ -24,16 +24,15 @@ set(SOURCES
 )
 
 
-
 add_library(${PROJECT_NAME} ${SOURCES})
 target_link_libraries(${PROJECT_NAME} PRIVATE
   zmq
   zmqpp)
 
-add_executable(main_dynamic src/prova_dynamic.cpp)
+add_executable(main_dynamic src/Test_dynamic.cpp)
 target_link_libraries(main_dynamic ${PROJECT_NAME})
 
-add_executable(main_kinematic src/prova_kinematic.cpp)
+add_executable(main_kinematic src/Test_kinematic.cpp)
 target_link_libraries(main_kinematic ${PROJECT_NAME})
 
 
