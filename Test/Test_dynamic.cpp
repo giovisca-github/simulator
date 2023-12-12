@@ -43,6 +43,17 @@ int main() {
     // send to unity
     bridge_ptr_->sendToUnity();
     bridge_ptr_->receiveFromUnity();
+    // check correctness of pared states
+    CarState state;
+    f1tenth_dyn->getState(state);
+
+    Quaternion quaternion = state.q();
+    std::cout << "quaternion: " << quaternion << std::endl;
+    Matrix<3, 3> rotationMatrix = quaternion.toRotationMatrix();
+    float angle = Eigen::AngleAxisf(rotationMatrix).angle() * 180 / M_PI;
+    std::cout << "angle" << angle << std::endl;
+    std::cout << "position z: " << state.p(2) << std::endl;
+
     // sleep
   }
   return 0;

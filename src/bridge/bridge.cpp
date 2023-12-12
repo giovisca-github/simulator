@@ -121,11 +121,9 @@ bool UnityBridge::receiveFromUnity() {
     CarState car_state;
     for (size_t idx = 0; idx < pub_msg_.vehicles.size(); idx++) {
       unity_cars_[idx]->setCollision(sub_msg.vehicles[idx].collision);
-
       // retrieve state from unity if using unity dynamics
       if (!unity_cars_[idx]->getPhysicEngine()) {
-        car_state.setPosition(sub_msg.vehicles[idx].position);
-
+        car_state.setStatesFromUnity(sub_msg.vehicles[idx]);
         unity_cars_[idx]->setState(car_state);
       }
     }

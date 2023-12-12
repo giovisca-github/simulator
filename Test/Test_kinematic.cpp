@@ -5,10 +5,10 @@ int main() {
   // define vehicle in the scene
   std::shared_ptr<Car> f1tenth_kin = std::make_shared<Car>(Car::KIN);
   //  initial states of the car:
-  CarState initial_state;
-  initial_state.setZero();
+  CarState state;
+  state.setZero();
 
-  f1tenth_kin->setState(initial_state);
+  f1tenth_kin->setState(state);
 
   // unity bridge
   std::shared_ptr<UnityBridge> bridge_ptr_;
@@ -28,18 +28,24 @@ int main() {
     // kinematic car
     std::cout << "insert x y z  values = ";
     for (int i = 0; i < 3; i++) {
-      std::cin >> initial_state.p(i);
+      std::cin >> state.p(i);
     }
     std::cout << " yaw value = ";
     std::cin >> x;
 
-    initial_state.setYaw(x * M_PI / 180.0);
+    state.setYaw(x * M_PI / 180.0);
     std::cout << "\n";
     // initial_state.p << x, 1, 2;
-    f1tenth_kin->setState(initial_state);
+    f1tenth_kin->setState(state);
 
     // send to unity
     bridge_ptr_->sendToUnity();
+    bridge_ptr_->receiveFromUnity();
+
+    // check rotation
+    f1tenth_kin->getState(state);
+    std::cout << state.q() << std::endl;
+    std::cout << state.v[0] << std::endl;
   }
   return 0;
 }

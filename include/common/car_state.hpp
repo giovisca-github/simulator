@@ -1,4 +1,6 @@
 #pragma once
+#include "bridge/custom_message.hpp"
+#include "common/math_stuff.hpp"
 #include "common/types.hpp"
 
 struct CarState {
@@ -47,9 +49,13 @@ struct CarState {
   inline bool valid() const { return x.allFinite(); }
 
   void setPosition(const std::vector<Scalar>& position);
+  void setVelocity(const std::vector<Scalar>& velocity);
+  void setRotation(const Quaternion& quaternion);
+  void setOmega(const std::vector<Scalar>& omega);
+  void setStatesFromUnity(const Vehicle_sub& vehicle);
   // manage quaternion
   Quaternion q() const;
-  void set_q(const Quaternion& quaternion);
+
   Matrix<3, 3> R() const;  // return rotation matrix
   void setYaw(const Scalar& yaw);
 
