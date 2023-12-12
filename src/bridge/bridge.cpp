@@ -73,12 +73,12 @@ bool UnityBridge::addCar(std::shared_ptr<Car> car) {
     return false;
   }
   // each vehile is called "car<number>"
-
   vehicles_t.ID = "car" + std::to_string(pub_msg_.vehicles.size());
   vehicles_t.position = position2Unity(car_state.p);
   vehicles_t.rotation = quaternion2Unity(car_state.q());
   vehicles_t.is_kinematic = car->getPhysicEngine();
-  vehicles_t.commands = car->getCommands();
+  if (vehicles_t.is_kinematic) vehicles_t.commands = car->getCommands();
+
   unity_cars_.push_back(car);
 
   pub_msg_.vehicles.push_back(vehicles_t);
@@ -89,10 +89,13 @@ bool UnityBridge::sendToUnity() {
   CarState car_state;
 
   for (size_t idx = 0; idx < pub_msg_.vehicles.size(); idx++) {
-    unity_cars_[idx]->getState(car_state);
-    pub_msg_.vehicles[idx].position = position2Unity(car_state.p);
-    pub_msg_.vehicles[idx].rotation = quaternion2Unity(car_state.q());
-    pub_msg_.vehicles[idx].commands = unity_cars_[idx]->getCommands();
+    if (pub_msg_.vehicles[idx].is_kinematic) {
+      unity_cars_[idx]->getState(car_state);
+      pub_msg_.vehicles[idx].position = position2Unity(car_state.p);
+      pub_msg_.vehicles[idx].rotation = quaternion2Unity(car_state.q());
+    } else {
+      pub_msg_.vehicles[idx].commands = unity_cars_[idx]->getCommands();
+    }
   }
   zmqpp::message msg;
   msg << "Update";

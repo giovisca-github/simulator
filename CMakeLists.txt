@@ -29,12 +29,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
   zmq
   zmqpp)
 
-add_executable(main_dynamic src/Test_dynamic.cpp)
-target_link_libraries(main_dynamic ${PROJECT_NAME})
-
-add_executable(main_kinematic src/Test_kinematic.cpp)
-target_link_libraries(main_kinematic ${PROJECT_NAME})
-
+add_subdirectory(Test)
 
 # # find dependencies
 # find_package(ament_cmake REQUIRED)
