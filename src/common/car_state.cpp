@@ -1,9 +1,9 @@
 #include "common/car_state.hpp"
 
-CarState::CarState() {}
+CarState::CarState() { setZero(); }
 CarState::CarState(const Vector<IDX::SIZE>& x_) : x{x_} {}
 
-CarState::~CarState() { setZero(); }
+CarState::~CarState() {}
 
 void CarState::setPosition(const std::vector<Scalar>& position) {
   x[CS::POSX] = position[0];

@@ -42,7 +42,7 @@ int main() {
 
     // send to unity
     bridge_ptr_->sendToUnity();
-
+    bridge_ptr_->receiveFromUnity();
     // sleep
   }
   return 0;

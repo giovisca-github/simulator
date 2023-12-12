@@ -56,7 +56,9 @@ bool UnityBridge::receiveFirstMessage() {
   bool done = false;
 
   if (sub_.receive(msg, true)) {
-    std::string metadata_string = msg.get(0);
+    std::string header = msg.get(0);
+    std::cout << "\n received " << header << "\n";
+    std::string metadata_string = msg.get(1);
     // if (json::parse(metadata_string).size() > 1) {
     //   return false;  // hack
     // }
@@ -77,11 +79,12 @@ bool UnityBridge::addCar(std::shared_ptr<Car> car) {
   vehicles_t.position = position2Unity(car_state.p);
   vehicles_t.rotation = quaternion2Unity(car_state.q());
   vehicles_t.is_kinematic = car->getPhysicEngine();
-  if (vehicles_t.is_kinematic) vehicles_t.commands = car->getCommands();
-
+  vehicles_t.commands = car->getCommands();
   unity_cars_.push_back(car);
 
   pub_msg_.vehicles.push_back(vehicles_t);
+  json json_msg = pub_msg_;
+  std::cout << json_msg.dump(2) << "\n";
   return true;
 };
 
@@ -109,20 +112,25 @@ bool UnityBridge::sendToUnity() {
 bool UnityBridge::receiveFromUnity() {
   zmqpp::message msg;
   sub_.receive(msg);
+  std::string header = msg.get(0);
+  if (msg.get(0) == "Update") {
+    std::string json_sub_msg = msg.get(1);
+    std::cout << json_sub_msg << "\n";
+    SubMessage sub_msg = json::parse(json_sub_msg);
 
-  std::string json_sub_msg = msg.get(0);
+    CarState car_state;
+    for (size_t idx = 0; idx < pub_msg_.vehicles.size(); idx++) {
+      unity_cars_[idx]->setCollision(sub_msg.vehicles[idx].collision);
 
-  SubMessage sub_msg = json::parse(json_sub_msg);
+      // retrieve state from unity if using unity dynamics
+      if (!unity_cars_[idx]->getPhysicEngine()) {
+        car_state.setPosition(sub_msg.vehicles[idx].position);
 
-  CarState car_state;
-  for (size_t idx = 0; idx < pub_msg_.vehicles.size(); idx++) {
-    unity_cars_[idx]->setCollision(sub_msg.vehicles[idx].collision);
-
-    // retrieve state from unity if using unity dynamics
-    if (unity_cars_[idx]->getPhysicEngine()) {
-      car_state.setPosition(sub_msg.vehicles[idx].position);
-      unity_cars_[idx]->setState(car_state);
+        unity_cars_[idx]->setState(car_state);
+      }
     }
+    return true;
+  } else {
+    return false;
   }
-  return true;
 };

@@ -8,8 +8,8 @@ custom type used in class definitions or in the coede
 using Scalar = float;
 
 struct Commands {
-  Scalar throttle{NULL};
-  Scalar steering{NULL};
+  Scalar throttle{0};
+  Scalar steering{0};
 };  // namespace struct Commands
 
 // -------- EIGEN --------------

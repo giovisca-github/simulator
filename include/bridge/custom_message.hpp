@@ -35,6 +35,9 @@ struct Vehicle {
 struct Vehicle_sub {
   bool collision;
   std::vector<Scalar> position{NAN};
+  std::vector<Scalar> rotation{NAN};
+  std::vector<Scalar> velocity_lin{NAN};
+  std::vector<Scalar> velocity_ang{NAN};
 };
 
 // message published to unity
@@ -98,7 +101,12 @@ inline void from_json(const json& j, SubMessage& s) {
 
 inline void from_json(const json& j, Vehicle_sub& v) {
   v.collision = j.at("collision").get<bool>();
-  v.position = j.at("position").get<std::vector<Scalar>>();
+  if (!j.at("position").empty()) {
+    v.position = j.at("position").get<std::vector<Scalar>>();
+    v.rotation = j.at("rotation").get<std::vector<Scalar>>();
+    v.velocity_lin = j.at("velocity_lin").get<std::vector<Scalar>>();
+    v.velocity_ang = j.at("velocity_ang").get<std::vector<Scalar>>();
+  }
 }
 
 inline void to_json(json& j, const Settings& s) {
