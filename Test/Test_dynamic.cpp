@@ -8,11 +8,15 @@ int main() {
   //  initial states of the car:
   CarState initial_state;
   initial_state.setZero();
-
-  // f1tenth_kin->setState(initial_state);
-  // initial_state.p << 0, 0, 0;
-
   f1tenth_dyn->setState(initial_state);
+
+  // add cameras
+  std::shared_ptr<RGBCamera> rgb_camera = std::make_shared<RGBCamera>();
+  Vector<3> rel_pos(-0.1, 0, 0.1);
+  Quaternion rel_rot(1.0, 0.0, 0.0, 0.0);
+  rgb_camera->setRelPose(rel_pos, rel_rot);
+
+  f1tenth_dyn->addRGBCamera(rgb_camera);
 
   // unity bridge
   std::shared_ptr<UnityBridge> bridge_ptr_;

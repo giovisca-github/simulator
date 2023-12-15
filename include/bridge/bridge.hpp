@@ -9,6 +9,7 @@
 #include "common/car.hpp"
 #include "common/math_stuff.hpp"
 #include "external/json.hpp"
+#include "sensors/camera.hpp"
 
 using json = nlohmann::json;
 

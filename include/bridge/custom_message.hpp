@@ -22,6 +22,21 @@ the simulator has to receive:
 
 using json = nlohmann::json;
 
+// camera template
+struct Camera {
+  std::string ID;
+  // camera settings
+  int width{1024};
+  int height{768};
+  Scalar fov{70.0f};
+
+  Scalar near_clip_plane{0.1};
+  Scalar far_clip_plane{1000};
+
+  std::vector<Scalar> rel_position{0, 0, 0};
+  std::vector<Scalar> rel_rotation{0.0, 0.0, 0.0, 0.0};
+};
+
 //  vehicle to send to unity
 struct Vehicle {
   std::string ID;
@@ -29,6 +44,7 @@ struct Vehicle {
   std::vector<Scalar> rotation{0.0, 0.0, 0.0, 1.0};
   Commands commands;
   bool is_kinematic;  // 1 use PhysX dynamics
+  std::vector<Camera> cameras;
 };
 
 // vehicle received from unity
@@ -63,24 +79,38 @@ struct SubMessage {
 
 // --- JSON Serialization ---------------------------- //
 
-inline void to_json(json& j, const Commands& c) {
+inline void to_json(json &j, const Camera &c) {
+  j = json{
+      {"ID", c.ID},
+      {"widht", c.width},
+      {"height", c.height},
+      {"fov", c.fov},
+      {"nearClipPlane", c.near_clip_plane},
+      {"farClipPlane", c.far_clip_plane},
+      {"positionRel", c.rel_position},
+      {"rotationRel", c.rel_rotation},
+  };
+}
+
+inline void to_json(json &j, const Commands &c) {
   j = json{{"throttle", c.throttle}, {"steering", c.steering}};
 }
 
-inline void from_json(const json& j, Commands& c) {
+inline void from_json(const json &j, Commands &c) {
   c.throttle = j.at("throttle").get<float>();
   c.steering = j.at("steering").get<float>();
 }
 
-inline void to_json(json& j, const Vehicle& v) {
+inline void to_json(json &j, const Vehicle &v) {
   j = json{{"ID", v.ID},
            {"position", v.position},
            {"rotation", v.rotation},
            {"commands", v.commands},
-           {"is_kinematic", v.is_kinematic}};
+           {"is_kinematic", v.is_kinematic},
+           {"cameras", v.cameras}};
 };
 
-inline void from_json(const json& j, Vehicle& v) {
+inline void from_json(const json &j, Vehicle &v) {
   v.ID = j.at("ID").get<std::string>();
   v.position = j.at("position").get<std::vector<Scalar>>();
   v.rotation = j.at("roation").get<std::vector<Scalar>>();
@@ -88,18 +118,18 @@ inline void from_json(const json& j, Vehicle& v) {
   v.is_kinematic = j.at("is_kinematic").get<bool>();
 }
 
-inline void to_json(json& j, const PubMessage& p) {
+inline void to_json(json &j, const PubMessage &p) {
   j = json{{"vehicles", p.vehicles}};
 };
-inline void from_json(const json& j, PubMessage& p) {
+inline void from_json(const json &j, PubMessage &p) {
   p.vehicles = j.at("vehicles").get<std::vector<Vehicle>>();
 }
 
-inline void from_json(const json& j, SubMessage& s) {
+inline void from_json(const json &j, SubMessage &s) {
   s.vehicles = j.at("vehicles").get<std::vector<Vehicle_sub>>();
 }
 
-inline void from_json(const json& j, Vehicle_sub& v) {
+inline void from_json(const json &j, Vehicle_sub &v) {
   v.collision = j.at("collision").get<bool>();
   if (!j.at("position").empty()) {
     v.position = j.at("position").get<std::vector<Scalar>>();
@@ -109,11 +139,11 @@ inline void from_json(const json& j, Vehicle_sub& v) {
   }
 }
 
-inline void to_json(json& j, const Settings& s) {
+inline void to_json(json &j, const Settings &s) {
   j = {{"solver", static_cast<int>(s.solver)}};
 }
 
-inline void to_json(json& j, const SettingMessage& s) {
+inline void to_json(json &j, const SettingMessage &s) {
   j = json{{"settings", s.setings}, {"subMessage", s.initialization_msg}};
 }
 // inline void from_json(const json& j, SettingMessage& s) {

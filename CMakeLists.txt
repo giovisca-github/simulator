@@ -7,6 +7,9 @@ project(my_cpp_pkg)
 # endif()
 
 find_package(Eigen3 REQUIRED)
+find_package(OpenCV REQUIRED)
+include_directories(${OpenCV_INCLUDE_DIRS})
+# target_link_libraries(your_target_name ${OpenCV_LIBS})
 
 
 include_directories(include)
@@ -21,14 +24,18 @@ set(SOURCES
     src/common/car.cpp
     src/common/car_state.cpp
     src/common/math_stuff.cpp
+    src/sensors/camera.cpp
 )
 
 
 add_library(${PROJECT_NAME} ${SOURCES})
 target_link_libraries(${PROJECT_NAME} PRIVATE
   zmq
-  zmqpp)
+  zmqpp
+  ${OpenCV_LIBS}
+  )
 
+add_subdirectory(App)
 add_subdirectory(Test)
 
 # # find dependencies
