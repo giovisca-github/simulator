@@ -37,14 +37,35 @@ struct Camera {
   std::vector<Scalar> rel_rotation{0.0, 0.0, 0.0, 0.0};
 };
 
-//  vehicle to send to unity
-struct Vehicle {
+// vehicle sent for settings the simulation
+struct Settings_vehicle {
   std::string ID;
   std::vector<Scalar> position{0.0, 0.0, 0.0};
   std::vector<Scalar> rotation{0.0, 0.0, 0.0, 1.0};
   Commands commands;
   bool is_kinematic;  // 1 use PhysX dynamics
   std::vector<Camera> cameras;
+};
+
+//  vehicle to send to unity
+struct Vehicle {
+  std::string ID;
+  std::vector<Scalar> position{0.0, 0.0, 0.0};
+  std::vector<Scalar> rotation{0.0, 0.0, 0.0, 1.0};
+  Commands commands;
+  // bool is_kinematic;  // 1 use PhysX dynamics
+  // std::vector<Camera> cameras;
+  Vehicle(Settings_vehicle v) {
+    ID = v.ID;
+    position = v.position;
+    rotation = v.position;
+    commands = v.commands;
+  };
+  Vehicle() {
+    ID = "";
+    position = {0.0, 0.0, 0.0};
+    rotation = {0.0, 0.0, 0.0, 1.0};
+  }
 };
 
 // vehicle received from unity
@@ -55,11 +76,6 @@ struct Vehicle_sub {
   std::vector<Scalar> velocity_lin{NAN};
   std::vector<Scalar> velocity_ang{NAN};
 };
-
-// message published to unity
-struct PubMessage {
-  std::vector<Vehicle> vehicles;
-};
 // initial setting message: define the vehicles and object in the scene to place
 // them and also unity settings
 struct Settings {
@@ -68,13 +84,26 @@ struct Settings {
   Solver solver = Solver::CONT;
 };
 
-struct SettingMessage {
+struct SettingsMessage {
   Settings setings;
-  PubMessage initialization_msg;
+  // PubMessage initialization_msg;
+  std::vector<Settings_vehicle> vehicles;
 };
 // message received from unity
 struct SubMessage {
   std::vector<Vehicle_sub> vehicles;
+};
+
+// message published to unity for updates
+struct PubMessage {
+  std::vector<Vehicle> vehicles;
+
+  PubMessage(SettingsMessage &s) {
+    for (auto i = 0; i < s.vehicles.size(); i++) {
+      vehicles.push_back(s.vehicles[i]);
+    }
+  }
+  PubMessage(){};
 };
 
 // --- JSON Serialization ---------------------------- //
@@ -82,7 +111,7 @@ struct SubMessage {
 inline void to_json(json &j, const Camera &c) {
   j = json{
       {"ID", c.ID},
-      {"widht", c.width},
+      {"width", c.width},
       {"height", c.height},
       {"fov", c.fov},
       {"nearClipPlane", c.near_clip_plane},
@@ -101,7 +130,7 @@ inline void from_json(const json &j, Commands &c) {
   c.steering = j.at("steering").get<float>();
 }
 
-inline void to_json(json &j, const Vehicle &v) {
+inline void to_json(json &j, const Settings_vehicle &v) {
   j = json{{"ID", v.ID},
            {"position", v.position},
            {"rotation", v.rotation},
@@ -110,7 +139,21 @@ inline void to_json(json &j, const Vehicle &v) {
            {"cameras", v.cameras}};
 };
 
+inline void to_json(json &j, const Vehicle &v) {
+  j = json{{"ID", v.ID},
+           {"position", v.position},
+           {"rotation", v.rotation},
+           {"commands", v.commands}};
+};
+
 inline void from_json(const json &j, Vehicle &v) {
+  v.ID = j.at("ID").get<std::string>();
+  v.position = j.at("position").get<std::vector<Scalar>>();
+  v.rotation = j.at("roation").get<std::vector<Scalar>>();
+  v.commands = j.at("commands").get<Commands>();
+}
+
+inline void from_json(const json &j, Settings_vehicle &v) {
   v.ID = j.at("ID").get<std::string>();
   v.position = j.at("position").get<std::vector<Scalar>>();
   v.rotation = j.at("roation").get<std::vector<Scalar>>();
@@ -143,10 +186,10 @@ inline void to_json(json &j, const Settings &s) {
   j = {{"solver", static_cast<int>(s.solver)}};
 }
 
-inline void to_json(json &j, const SettingMessage &s) {
-  j = json{{"settings", s.setings}, {"subMessage", s.initialization_msg}};
+inline void to_json(json &j, const SettingsMessage &s) {
+  j = json{{"settings", s.setings}, {"vehicles", s.vehicles}};
 }
-// inline void from_json(const json& j, SettingMessage& s) {
+// inline void from_json(const json &j, SettingsMessage &s) {
 //   s.initialization_msg = j.at("PubMessage").get<PubMessage>();
 //   s.solver = j.at("solver").get<SettingMessage::Solver>();
 // }

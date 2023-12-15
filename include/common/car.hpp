@@ -40,6 +40,9 @@ class Car {
   Commands getCommands();
   bool getRGBCamera(const size_t cam_id,
                     std::shared_ptr<RGBCamera> camera) const;
+  std::vector<std::shared_ptr<RGBCamera>> getRGBCameras() const {
+    return rgb_cameras_;
+  }
 
  private:
   Commands commands_;

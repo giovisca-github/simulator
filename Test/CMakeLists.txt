@@ -10,3 +10,6 @@ target_link_libraries(Test_jsonSerialization ${PROJECT_NAME})
 
 add_executable(prove proveVarie.cpp)
 target_link_libraries(prove ${OpenCV_LIBS})
+
+add_executable(Test_camera Test_camera.cpp)
+target_link_libraries(Test_camera ${PROJECT_NAME})

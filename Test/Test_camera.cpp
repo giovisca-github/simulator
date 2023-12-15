@@ -1,8 +1,6 @@
 #include "bridge/bridge.hpp"
 
 int main() {
-  cv::namedWindow("Display", cv::WINDOW_NORMAL);
-  cv::resizeWindow("Display", 400, 400);  // Set your desired window size
   // define vehicle in the scene
   std::shared_ptr<Car> f1tenth_dyn = std::make_shared<Car>(Car::UNITY);
   // std::shared_ptr<Car> f1tenth_dyn = std::make_shared<Car>(Car::KIN);
@@ -19,6 +17,9 @@ int main() {
   rgb_camera->setRelPose(rel_pos, rel_rot);
   f1tenth_dyn->addRGBCamera(rgb_camera);
 
+  cv::namedWindow("Display", cv::WINDOW_NORMAL);
+  cv::resizeWindow("Display", 1024, 768);  // Set your desired window size
+
   // unity bridge
   std::shared_ptr<UnityBridge> bridge_ptr_;
   bridge_ptr_ = UnityBridge::getInstance();
@@ -33,43 +34,23 @@ int main() {
 
   // simulation
   Commands c;
+  c.throttle = 0.5;
+  c.steering = -1;
+  f1tenth_dyn->setCommand(c);
+
   cv::Mat img;
 
   while (unity_ready) {
-    usleep(0.2e6);
-
-    // // kinematic car
-    // initial_state.p << 1.0, 0.0, 0;
-    // f1tenth_kin->setState(initial_state);
-    // dynamic car
-    std::cout << "Input steering throttle = ";
-    std::cin >> c.steering >> c.throttle;
-    std::cout << "\n";
-    f1tenth_dyn->setCommand(c);
-
     // send to unity
     bridge_ptr_->sendToUnity();
     bridge_ptr_->receiveFromUnity();
-    // check correctness of pared states
-    CarState state;
-    f1tenth_dyn->getState(state);
-
-    Quaternion quaternion = state.q();
-    std::cout << "quaternion: " << quaternion << std::endl;
-    Matrix<3, 3> rotationMatrix = quaternion.toRotationMatrix();
-    float angle = Eigen::AngleAxisf(rotationMatrix).angle() * 180 / M_PI;
-    std::cout << "angle" << angle << std::endl;
-    std::cout << "position z: " << state.p(2) << std::endl;
-
-    // cv::imshow("camera from unity",
-    //  f1tenth_dyn->getRGBCameras()[0]->getRGBImage(img));
     rgb_camera->getRGBImage(img);
     // std::cout << img;
 
     if (!img.empty()) {
       std::cout << "image display\n";
       cv::imshow("Display", img);
-      cv::waitKey(300);
+      cv::waitKey(3);
     }
     // sleep
   }

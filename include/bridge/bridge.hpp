@@ -36,7 +36,7 @@ class UnityBridge {
   }
 
   // setter
-  void setSettings(const Settings& settings) { settings_ = settings; }
+  void setSettings(const Settings& settings) { settings_.setings = settings; }
 
  private:
   std::vector<std::shared_ptr<Car>> unity_cars_;
@@ -51,7 +51,7 @@ class UnityBridge {
   zmqpp::socket sub_{context_, zmqpp::socket_type::sub};
   // messages types
 
-  Settings settings_;
+  SettingsMessage settings_;
   PubMessage pub_msg_;  // store all the data that has to be then send to unity
   bool sendSettings();
   bool receiveFirstMessage();

@@ -1,6 +1,7 @@
 #pragma once
 #include <deque>
 #include <iostream>
+#include <opencv2/opencv.hpp>
 #include <opencv4/opencv2/core.hpp>
 #include <opencv4/opencv2/highgui.hpp>
 
@@ -19,7 +20,12 @@ class RGBCamera {
   bool feedImageQueue(const cv::Mat& image_mat);
 
   // get functions
-
+  int getChannels() const { return channels_; }
+  int getWidth() const { return width_; }
+  int getHeight() const { return heigth_; }
+  Scalar getFov() const { return fov_; }
+  Vector<3> getRelPos() const { return rel_pos_; }
+  Quaternion getRelRot() const { return rel_rot_; }
   bool getRGBImage(cv::Mat& rgb_img);
 
  private:
